@@ -1,12 +1,30 @@
 workflows:
   android-workflow:
     name: Android Workflow
+
     max_build_duration: 60
     instance_type: mac_mini_m1
+
+    environment:
+      flutter: 3.44.5
+
     scripts:
-      - name: Get Flutter packages
-        script: flutter packages pub get
+      - name: Flutter Doctor
+        script: |
+          flutter --version
+          flutter doctor -v
+
+      - name: Clean
+        script: |
+          flutter clean
+
+      - name: Get Packages
+        script: |
+          flutter pub get
+
       - name: Build APK
-        script: flutter build apk --release
+        script: |
+          flutter build apk --release
+
     artifacts:
       - build/app/outputs/flutter-apk/*.apk
