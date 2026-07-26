@@ -7,6 +7,10 @@ void main() {
   runApp(const MobilitiApp());
 }
 
+Firebase.initializeApp(
+  options: DefaultFirebaseOptions.currentPlatform,
+);
+
 class MobilitiApp extends StatelessWidget {
   const MobilitiApp({super.key});
 
