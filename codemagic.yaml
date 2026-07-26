@@ -1,7 +1,6 @@
 workflows:
   android-workflow:
     name: Android Workflow
-
     max_build_duration: 60
     instance_type: mac_mini_m1
 
@@ -18,7 +17,11 @@ workflows:
         script: |
           flutter clean
 
-      - name: Get Packages
+      - name: Delete pub cache
+        script: |
+          rm -rf ~/.pub-cache
+
+      - name: Get packages
         script: |
           flutter pub get
 
