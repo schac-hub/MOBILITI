@@ -1,5 +1,5 @@
 plugins {
-    id("com.android.application")
+    id("com.meschac.mobiliti.mobiliti")
     id("org.jetbrains.kotlin.android")
     id("dev.flutter.flutter-gradle-plugin")
     id("com.meschac.mobiliti.mobiliti")
