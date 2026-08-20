@@ -1,0 +1,54 @@
+{
+  "project_info": {
+    "project_number": "156314384206",
+    "project_id": "mobiliti-b",
+    "storage_bucket": "mobiliti-b.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:156314384206:android:08742d992bf5d7fe75101f",
+        "android_client_info": {
+          "package_name": "com.meschac.mobiliti.mobiliti"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "156314384206-t11vts1kd4t69rkl8vfvlgar4ilpnt5r.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.meschac.mobiliti.mobiliti",
+            "certificate_hash": "665958842706b36e53d01a2d002ac35b93e7a394"
+          }
+        },
+        {
+          "client_id": "156314384206-06tc5meuua6beuo0j2q7o183155vrfrm.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAZLTjiW_dFBos8sxWVp7bqEp3HBBrr2ao"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "156314384206-06tc5meuua6beuo0j2q7o183155vrfrm.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "156314384206-acn2vvs5t7nth3gsoonl0r356mk7bmu6.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.meschac.mobiliti.mobiliti"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
