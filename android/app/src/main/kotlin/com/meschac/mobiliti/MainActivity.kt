@@ -1,4 +1,4 @@
-package com.meschac.mobiliti.mobiliti
+package com.meschac.mobiliti
 
 import io.flutter.embedding.android.FlutterActivity
 

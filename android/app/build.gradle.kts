@@ -10,7 +10,7 @@ dependencies {
 }
 
 android {
-    namespace = "com.meschac.mobiliti.mobiliti"
+    namespace = "com.meschac.mobiliti"
     compileSdk = 36
     ndkVersion = flutter.ndkVersion
 
@@ -20,7 +20,7 @@ android {
     }
 
     defaultConfig {
-        applicationId = "com.meschac.mobiliti.mobiliti"
+        applicationId = "com.meschac.mobiliti"
         minSdk = 23
         targetSdk = 36
         versionCode = 4
