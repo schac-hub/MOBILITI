@@ -193,6 +193,10 @@ class AuthProvider extends ChangeNotifier {
     }
   }
 
+  Future<String?> getEmailByPhone(String phone) async {
+    return await _firebaseService.getEmailByPhone(phone);
+  }
+
   Future<void> logout() async {
     try {
       _isLoading = true;

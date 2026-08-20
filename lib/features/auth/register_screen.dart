@@ -50,12 +50,21 @@ class _RegisterScreenState extends State<RegisterScreen> {
     }
 
     final authProvider = context.read<AuthProvider>();
+    
+    // Nettoyage du numéro de téléphone
+    String phone = _phoneController.text.trim().replaceAll(RegExp(r'\s+'), '');
+    if (phone.startsWith('+225')) {
+      phone = phone.substring(4);
+    } else if (phone.startsWith('225')) {
+      phone = phone.substring(3);
+    }
+
     final success = await authProvider.register(
       email: _emailController.text.trim(),
       password: _passwordController.text,
       firstName: _firstNameController.text.trim(),
       lastName: _lastNameController.text.trim(),
-      phoneNumber: _phoneController.text.trim(),
+      phoneNumber: phone,
     );
 
     if (mounted) {

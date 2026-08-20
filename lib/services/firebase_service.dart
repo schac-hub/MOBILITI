@@ -34,6 +34,23 @@ class FirebaseService {
     }
   }
 
+  Future<String?> getEmailByPhone(String phone) async {
+    try {
+      final snapshot = await _firestore
+          .collection(AppConstants.usersCollection)
+          .where('phoneNumber', isEqualTo: phone)
+          .limit(1)
+          .get();
+
+      if (snapshot.docs.isNotEmpty) {
+        return snapshot.docs.first.data()['email'] as String?;
+      }
+      return null;
+    } catch (e) {
+      return null;
+    }
+  }
+
   Future<void> updateUser(UserModel user) async {
     try {
       await _firestore

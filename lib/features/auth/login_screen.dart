@@ -32,11 +32,23 @@ class _LoginScreenState extends State<LoginScreen> {
     if (!_formKey.currentState!.validate()) return;
 
     final authProvider = context.read<AuthProvider>();
-    // Note: In real app, we might search user by phone in Firestore first or use phone auth.
-    // Here we adapt the current email-based login to use a simulated email from phone if needed,
-    // or just pass the phone to a new login method.
-    // For now, let's keep it simple and use a placeholder email based on phone.
-    final email = '${_phoneController.text.trim()}@mobiliti.ci';
+    
+    // Nettoyage du numéro de téléphone (enlève espaces et préfixe redondant)
+    String phone = _phoneController.text.trim().replaceAll(RegExp(r'\s+'), '');
+    if (phone.startsWith('+225')) {
+      phone = phone.substring(4);
+    } else if (phone.startsWith('225')) {
+      phone = phone.substring(3);
+    }
+    
+    // Reconstruction de l'email technique sans espaces
+    String email = '$phone@mobiliti.ci';
+    
+    // Tentative de récupération de l'email réel si l'utilisateur a enregistré un email différent
+    final actualEmail = await authProvider.getEmailByPhone(phone);
+    if (actualEmail != null) {
+      email = actualEmail;
+    }
     
     final success = await authProvider.login(
       email: email,
@@ -123,8 +135,17 @@ class _LoginScreenState extends State<LoginScreen> {
                 TextFormField(
                   controller: _phoneController,
                   keyboardType: TextInputType.phone,
+                  onChanged: (value) {
+                    // Si l'utilisateur colle ou tape +225 alors qu'il est déjà en préfixe
+                    if (value.startsWith('+225')) {
+                      _phoneController.text = value.replaceFirst('+225', '').trim();
+                      _phoneController.selection = TextSelection.fromPosition(
+                        TextPosition(offset: _phoneController.text.length),
+                      );
+                    }
+                  },
                   decoration: InputDecoration(
-                    hintText: '07 00 00 00 00',
+                    hintText: '01 02 03 04 05',
                     prefixIcon: const Padding(
                       padding: EdgeInsets.all(14),
                       child: Text(
