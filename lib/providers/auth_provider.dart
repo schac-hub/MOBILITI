@@ -7,7 +7,9 @@ import '../services/firebase_service.dart';
 
 class AuthProvider extends ChangeNotifier {
   final _firebaseService = FirebaseService();
-  final _googleSignIn = GoogleSignIn();
+  final _googleSignIn = GoogleSignIn(
+    serverClientId: '156314384206-06tc5meuua6beuo0j2q7o183155vrfrm.apps.googleusercontent.com',
+  );
 
   UserModel? _user;
   bool _isLoading = false;
@@ -212,7 +214,11 @@ class AuthProvider extends ChangeNotifier {
       notifyListeners();
       return true;
     } catch (e) {
-      _error = e.toString();
+      if (e.toString().contains('10')) {
+        _error = "Erreur de configuration Google (Code 10). Veuillez vérifier que la clé SHA-1 de votre application est bien enregistrée dans la console Firebase.";
+      } else {
+        _error = e.toString();
+      }
       _isLoading = false;
       notifyListeners();
       return false;
