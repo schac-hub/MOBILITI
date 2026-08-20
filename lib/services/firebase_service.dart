@@ -1,10 +1,13 @@
+import 'dart:io';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import '../models/user_model.dart';
 import '../models/trip_model.dart';
 import '../core/constants/app_constants.dart';
 
 class FirebaseService {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+  final FirebaseStorage _storage = FirebaseStorage.instance;
 
   // ==================== USER METHODS ====================
   Future<void> createUser(UserModel user) async {
@@ -15,6 +18,16 @@ class FirebaseService {
           .set(user.toMap());
     } catch (e) {
       throw Exception('Error creating user: $e');
+    }
+  }
+
+  Future<String> uploadFile(File file, String path) async {
+    try {
+      final ref = _storage.ref().child(path);
+      await ref.putFile(file);
+      return await ref.getDownloadURL();
+    } catch (e) {
+      throw Exception('Error uploading file: $e');
     }
   }
 

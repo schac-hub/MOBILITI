@@ -1,5 +1,7 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:image_picker/image_picker.dart';
 import '../../core/theme/app_theme.dart';
 import '../../core/widgets/custom_text_field.dart';
 import '../../core/custom_button.dart';
@@ -24,6 +26,21 @@ class _RegisterScreenState extends State<RegisterScreen> {
   final _phoneController = TextEditingController();
   final _passwordController = TextEditingController();
   final _confirmPasswordController = TextEditingController();
+  
+  // Driver specific controllers
+  final _carModelController = TextEditingController();
+  final _licensePlateController = TextEditingController();
+  final _carColorController = TextEditingController();
+  final _licenseNumberController = TextEditingController();
+  final _carYearController = TextEditingController();
+  final _carCapacityController = TextEditingController();
+  
+  String _userType = 'passenger'; // 'passenger' or 'driver'
+  File? _carImage;
+  File? _licenseImage;
+  File? _idCardImage;
+  final _picker = ImagePicker();
+  
   bool _acceptTerms = false;
 
   @override
@@ -34,7 +51,24 @@ class _RegisterScreenState extends State<RegisterScreen> {
     _phoneController.dispose();
     _passwordController.dispose();
     _confirmPasswordController.dispose();
+    _carModelController.dispose();
+    _licensePlateController.dispose();
+    _carColorController.dispose();
+    _licenseNumberController.dispose();
+    _carYearController.dispose();
+    _carCapacityController.dispose();
     super.dispose();
+  }
+
+  Future<void> _pickImage(String type) async {
+    final pickedFile = await _picker.pickImage(source: ImageSource.gallery, imageQuality: 70);
+    if (pickedFile != null) {
+      setState(() {
+        if (type == 'car') _carImage = File(pickedFile.path);
+        if (type == 'license') _licenseImage = File(pickedFile.path);
+        if (type == 'id') _idCardImage = File(pickedFile.path);
+      });
+    }
   }
 
   Future<void> _submit() async {
@@ -47,6 +81,18 @@ class _RegisterScreenState extends State<RegisterScreen> {
         ),
       );
       return;
+    }
+
+    if (_userType == 'driver') {
+      if (_carImage == null || _licenseImage == null || _idCardImage == null) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Veuillez fournir toutes les photos requises'),
+            backgroundColor: AppColors.danger,
+          ),
+        );
+        return;
+      }
     }
 
     final authProvider = context.read<AuthProvider>();
@@ -65,6 +111,16 @@ class _RegisterScreenState extends State<RegisterScreen> {
       firstName: _firstNameController.text.trim(),
       lastName: _lastNameController.text.trim(),
       phoneNumber: phone,
+      userType: _userType,
+      carModel: _userType == 'driver' ? _carModelController.text.trim() : null,
+      licensePlate: _userType == 'driver' ? _licensePlateController.text.trim() : null,
+      carColor: _userType == 'driver' ? _carColorController.text.trim() : null,
+      licenseNumber: _userType == 'driver' ? _licenseNumberController.text.trim() : null,
+      carYear: _userType == 'driver' ? int.tryParse(_carYearController.text) : null,
+      carCapacity: _userType == 'driver' ? int.tryParse(_carCapacityController.text) : null,
+      carImage: _userType == 'driver' ? _carImage : null,
+      licenseImage: _userType == 'driver' ? _licenseImage : null,
+      idCardImage: _userType == 'driver' ? _idCardImage : null,
     );
 
     if (mounted) {
@@ -110,6 +166,59 @@ class _RegisterScreenState extends State<RegisterScreen> {
       return 'Les mots de passe ne correspondent pas';
     }
     return null;
+  }
+
+  Widget _typeCard(String type, String label, IconData icon) {
+    final active = _userType == type;
+    return Expanded(
+      child: GestureDetector(
+        onTap: () => setState(() => _userType = type),
+        child: Container(
+          padding: const EdgeInsets.symmetric(vertical: 16),
+          decoration: BoxDecoration(
+            color: active ? AppColors.primary : Colors.white,
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(color: active ? AppColors.primary : AppColors.border),
+          ),
+          child: Column(
+            children: [
+              Icon(icon, color: active ? Colors.white : AppColors.text, size: 28),
+              const SizedBox(height: 8),
+              Text(label, style: TextStyle(color: active ? Colors.white : AppColors.text, fontWeight: FontWeight.w600)),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _imagePickerTile(String label, File? image, VoidCallback onTap) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 12),
+      child: GestureDetector(
+        onTap: onTap,
+        child: Container(
+          padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            color: AppColors.surface,
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(color: AppColors.border),
+          ),
+          child: Row(
+            children: [
+              Icon(image == null ? Icons.camera_alt_outlined : Icons.check_circle, 
+                   color: image == null ? AppColors.muted : Colors.green),
+              const SizedBox(width: 16),
+              Expanded(child: Text(label, style: const TextStyle(fontWeight: FontWeight.w500))),
+              if (image != null) ClipRRect(
+                borderRadius: BorderRadius.circular(4),
+                child: Image.file(image, height: 40, width: 40, fit: BoxFit.cover),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
   }
 
   @override
@@ -191,6 +300,55 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   },
                 ),
                 const SizedBox(height: 16),
+                
+                // --- Type d'utilisateur ---
+                const Text('Vous êtes ?', style: TextStyle(fontWeight: FontWeight.w700)),
+                const SizedBox(height: 12),
+                Row(
+                  children: [
+                    _typeCard('passenger', 'Passager', Icons.person_outline),
+                    const SizedBox(width: 12),
+                    _typeCard('driver', 'Conducteur', Icons.drive_eta_outlined),
+                  ],
+                ),
+                const SizedBox(height: 24),
+
+                if (_userType == 'driver') ...[
+                  const Text('Informations du véhicule', style: TextStyle(fontWeight: FontWeight.w700)),
+                  const SizedBox(height: 16),
+                  Row(
+                    children: [
+                      Expanded(child: CustomTextField(label: 'Modèle', hintText: 'Ex: Toyota Corolla', controller: _carModelController)),
+                      const SizedBox(width: 12),
+                      Expanded(child: CustomTextField(label: 'Couleur', hintText: 'Ex: Blanc', controller: _carColorController)),
+                    ],
+                  ),
+                  const SizedBox(height: 16),
+                  Row(
+                    children: [
+                      Expanded(child: CustomTextField(label: 'Plaque', hintText: 'XX-1234-YY', controller: _licensePlateController)),
+                      const SizedBox(width: 12),
+                      Expanded(child: CustomTextField(label: 'Année', hintText: '2018', controller: _carYearController, keyboardType: TextInputType.number)),
+                    ],
+                  ),
+                  const SizedBox(height: 16),
+                  Row(
+                    children: [
+                      Expanded(child: CustomTextField(label: 'Permis', hintText: 'Numéro', controller: _licenseNumberController)),
+                      const SizedBox(width: 12),
+                      Expanded(child: CustomTextField(label: 'Places', hintText: '4', controller: _carCapacityController, keyboardType: TextInputType.number)),
+                    ],
+                  ),
+                  const SizedBox(height: 24),
+                  
+                  const Text('Documents (Photos)', style: TextStyle(fontWeight: FontWeight.w700)),
+                  const SizedBox(height: 12),
+                  _imagePickerTile('Photo du véhicule', _carImage, () => _pickImage('car')),
+                  _imagePickerTile('Photo du permis', _licenseImage, () => _pickImage('license')),
+                  _imagePickerTile('Photo de la CNI', _idCardImage, () => _pickImage('id')),
+                  const SizedBox(height: 24),
+                ],
+
                 CustomTextField(
                   label: 'Mot de passe',
                   hintText: '••••••••',

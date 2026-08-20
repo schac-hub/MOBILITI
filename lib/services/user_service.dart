@@ -57,4 +57,10 @@ class UserService {
     await updateUser(uid, {'photoUrl': photoUrl});
     return photoUrl;
   }
+
+  Future<String> uploadDriverFile(String uid, File file, String fileName) async {
+    final ref = _storage.ref().child('driver_docs').child(uid).child('$fileName.jpg');
+    final uploadTask = await ref.putFile(file);
+    return await uploadTask.ref.getDownloadURL();
+  }
 }

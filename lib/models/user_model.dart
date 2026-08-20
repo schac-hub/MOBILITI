@@ -25,6 +25,11 @@ class UserModel {
   final DateTime? licenseExpiryDate;
   final DateTime? insuranceExpiryDate;
   final String? bankAccount;
+  final String? carPhoto;
+  final String? licensePhoto;
+  final String? idCardPhoto;
+  final int? carYear;
+  final int? carCapacity;
   final double totalEarnings;
   final int totalTripsCompleted;
   final int totalPassengersServed;
@@ -52,6 +57,11 @@ class UserModel {
     this.licenseExpiryDate,
     this.insuranceExpiryDate,
     this.bankAccount,
+    this.carPhoto,
+    this.licensePhoto,
+    this.idCardPhoto,
+    this.carYear,
+    this.carCapacity,
     this.totalEarnings = 0.0,
     this.totalTripsCompleted = 0,
     this.totalPassengersServed = 0,
@@ -62,8 +72,7 @@ class UserModel {
   String get initials => (firstName.isNotEmpty ? firstName[0] : '') + (lastName.isNotEmpty ? lastName[0] : '');
   String get phone => phoneNumber;
 
-  // Mock stats for UI
-  double get co2Saved => totalTripsCompleted * 2.5; // Example calculation
+  double get co2Saved => totalTripsCompleted * 2.5;
   int get tripsCount => totalTripsCompleted;
 
   bool get isDriveVerified =>
@@ -94,6 +103,11 @@ class UserModel {
     'licenseExpiryDate': licenseExpiryDate != null ? Timestamp.fromDate(licenseExpiryDate!) : null,
     'insuranceExpiryDate': insuranceExpiryDate != null ? Timestamp.fromDate(insuranceExpiryDate!) : null,
     'bankAccount': bankAccount,
+    'carPhoto': carPhoto,
+    'licensePhoto': licensePhoto,
+    'idCardPhoto': idCardPhoto,
+    'carYear': carYear,
+    'carCapacity': carCapacity,
     'totalEarnings': totalEarnings,
     'totalTripsCompleted': totalTripsCompleted,
     'totalPassengersServed': totalPassengersServed,
@@ -122,6 +136,11 @@ class UserModel {
     licenseExpiryDate: (map['licenseExpiryDate'] as Timestamp?)?.toDate(),
     insuranceExpiryDate: (map['insuranceExpiryDate'] as Timestamp?)?.toDate(),
     bankAccount: map['bankAccount'],
+    carPhoto: map['carPhoto'],
+    licensePhoto: map['licensePhoto'],
+    idCardPhoto: map['idCardPhoto'],
+    carYear: map['carYear'],
+    carCapacity: map['carCapacity'],
     totalEarnings: (map['totalEarnings'] ?? 0.0).toDouble(),
     totalTripsCompleted: map['totalTripsCompleted'] ?? 0,
     totalPassengersServed: map['totalPassengersServed'] ?? 0,
@@ -150,6 +169,11 @@ class UserModel {
     DateTime? licenseExpiryDate,
     DateTime? insuranceExpiryDate,
     String? bankAccount,
+    String? carPhoto,
+    String? licensePhoto,
+    String? idCardPhoto,
+    int? carYear,
+    int? carCapacity,
     double? totalEarnings,
     int? totalTripsCompleted,
     int? totalPassengersServed,
@@ -176,6 +200,11 @@ class UserModel {
     licenseExpiryDate: licenseExpiryDate ?? this.licenseExpiryDate,
     insuranceExpiryDate: insuranceExpiryDate ?? this.insuranceExpiryDate,
     bankAccount: bankAccount ?? this.bankAccount,
+    carPhoto: carPhoto ?? this.carPhoto,
+    licensePhoto: licensePhoto ?? this.licensePhoto,
+    idCardPhoto: idCardPhoto ?? this.idCardPhoto,
+    carYear: carYear ?? this.carYear,
+    carCapacity: carCapacity ?? this.carCapacity,
     totalEarnings: totalEarnings ?? this.totalEarnings,
     totalTripsCompleted: totalTripsCompleted ?? this.totalTripsCompleted,
     totalPassengersServed: totalPassengersServed ?? this.totalPassengersServed,

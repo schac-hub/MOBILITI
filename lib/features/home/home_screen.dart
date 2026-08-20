@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../core/theme/app_theme.dart';
@@ -18,6 +19,25 @@ class _HomeScreenState extends State<HomeScreen> {
   String _departure = 'Yopougon Selmer';
   String _arrival = 'Plateau, Abidjan';
   DateTime _date = DateTime.now();
+  Timer? _refreshTimer;
+
+  @override
+  void initState() {
+    super.initState();
+    _startRefreshTimer();
+  }
+
+  @override
+  void dispose() {
+    _refreshTimer?.cancel();
+    super.dispose();
+  }
+
+  void _startRefreshTimer() {
+    _refreshTimer = Timer.periodic(const Duration(seconds: 30), (timer) {
+      if (mounted) setState(() {});
+    });
+  }
 
   void _search() {
     Navigator.pushNamed(context, ResultsScreen.route, arguments: {
@@ -258,53 +278,70 @@ class _HomeScreenState extends State<HomeScreen> {
   Future<String?> _showLocationPicker(
       BuildContext ctx, String title, String current) async {
     final ctrl = TextEditingController(text: current);
+    List<String> currentSuggestions = _suggestions(title);
+
     return showModalBottomSheet<String>(
       context: ctx,
       isScrollControlled: true,
       backgroundColor: Colors.white,
       shape: const RoundedRectangleBorder(
           borderRadius: BorderRadius.vertical(top: Radius.circular(20))),
-      builder: (_) => Padding(
-        padding: EdgeInsets.only(
-            bottom: MediaQuery.of(ctx).viewInsets.bottom,
-            top: 16, left: 20, right: 20),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Container(width: 40, height: 4,
-                decoration: BoxDecoration(color: AppColors.border,
-                    borderRadius: BorderRadius.circular(4))),
-            const SizedBox(height: 16),
-            Text(title, style: const TextStyle(
-                fontWeight: FontWeight.w800, fontSize: 18, color: AppColors.text)),
-            const SizedBox(height: 16),
-            TextField(
-              controller: ctrl,
-              autofocus: true,
-              decoration: InputDecoration(
-                hintText: 'Ex: Yopougon Niangon',
-                prefixIcon: const Icon(Icons.search, color: AppColors.muted),
-                filled: true, fillColor: AppColors.surface,
-                border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(AppRadius.sm),
-                    borderSide: const BorderSide(color: AppColors.border)),
-                enabledBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(AppRadius.sm),
-                    borderSide: const BorderSide(color: AppColors.border)),
-                focusedBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(AppRadius.sm),
-                    borderSide: const BorderSide(color: AppColors.primary, width: 2)),
+      builder: (context) => StatefulBuilder(
+        builder: (context, setModalState) => Padding(
+          padding: EdgeInsets.only(
+              bottom: MediaQuery.of(ctx).viewInsets.bottom,
+              top: 16, left: 20, right: 20),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Container(width: 40, height: 4,
+                  decoration: BoxDecoration(color: AppColors.border,
+                      borderRadius: BorderRadius.circular(4))),
+              const SizedBox(height: 16),
+              Text(title, style: const TextStyle(
+                  fontWeight: FontWeight.w800, fontSize: 18, color: AppColors.text)),
+              const SizedBox(height: 16),
+              TextField(
+                controller: ctrl,
+                autofocus: true,
+                onChanged: (value) {
+                  setModalState(() {
+                    currentSuggestions = _suggestions(title)
+                        .where((s) => s.toLowerCase().contains(value.toLowerCase()))
+                        .toList();
+                  });
+                },
+                decoration: InputDecoration(
+                  hintText: 'Ex: Yopougon Niangon',
+                  prefixIcon: const Icon(Icons.search, color: AppColors.muted),
+                  filled: true, fillColor: AppColors.surface,
+                  border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(AppRadius.sm),
+                      borderSide: const BorderSide(color: AppColors.border)),
+                  enabledBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(AppRadius.sm),
+                      borderSide: const BorderSide(color: AppColors.border)),
+                  focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(AppRadius.sm),
+                      borderSide: const BorderSide(color: AppColors.primary, width: 2)),
+                ),
               ),
-            ),
-            const SizedBox(height: 12),
-            ..._suggestions(title).map((s) => ListTile(
-                  leading: const Icon(Icons.location_on_outlined,
-                      color: AppColors.primary),
-                  title: Text(s),
-                  onTap: () => Navigator.pop(ctx, s),
-                )),
-            const SizedBox(height: 20),
-          ],
+              const SizedBox(height: 12),
+              if (currentSuggestions.isEmpty && ctrl.text.isNotEmpty)
+                ListTile(
+                  leading: const Icon(Icons.add_location_alt_outlined, color: AppColors.primary),
+                  title: Text('Utiliser "${ctrl.text}"'),
+                  onTap: () => Navigator.pop(ctx, ctrl.text),
+                ),
+              ...currentSuggestions.map((s) => ListTile(
+                    leading: const Icon(Icons.location_on_outlined,
+                        color: AppColors.primary),
+                    title: Text(s),
+                    onTap: () => Navigator.pop(ctx, s),
+                  )),
+              const SizedBox(height: 20),
+            ],
+          ),
         ),
       ),
     );

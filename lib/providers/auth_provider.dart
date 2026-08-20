@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart' as fb;
 import 'package:google_sign_in/google_sign_in.dart';
@@ -42,6 +43,15 @@ class AuthProvider extends ChangeNotifier {
     required String lastName,
     required String phoneNumber,
     String userType = 'passenger',
+    String? carModel,
+    String? licensePlate,
+    String? carColor,
+    String? licenseNumber,
+    int? carYear,
+    int? carCapacity,
+    File? carImage,
+    File? licenseImage,
+    File? idCardImage,
   }) async {
     try {
       _isLoading = true;
@@ -52,7 +62,7 @@ class AuthProvider extends ChangeNotifier {
       if (email.isEmpty || !email.contains('@')) {
         throw Exception('Email invalide');
       }
-      if (phoneNumber.isEmpty || phoneNumber.length < 10) {
+      if (phoneNumber.isEmpty) {
         throw Exception('Numéro de téléphone invalide');
       }
       if (password.isEmpty || password.length < 6) {
@@ -64,11 +74,26 @@ class AuthProvider extends ChangeNotifier {
         email: email.trim(),
         password: password,
       );
+      
+      final uid = fbUser.user!.uid;
+      String? carPhotoUrl, licensePhotoUrl, idCardPhotoUrl;
+      
+      if (userType == 'driver') {
+        if (carImage != null) {
+          carPhotoUrl = await _firebaseService.uploadFile(carImage, 'drivers/$uid/car.jpg');
+        }
+        if (licenseImage != null) {
+          licensePhotoUrl = await _firebaseService.uploadFile(licenseImage, 'drivers/$uid/license.jpg');
+        }
+        if (idCardImage != null) {
+          idCardPhotoUrl = await _firebaseService.uploadFile(idCardImage, 'drivers/$uid/id_card.jpg');
+        }
+      }
 
       // Create user model
       final now = DateTime.now();
       final newUser = UserModel(
-        id: fbUser.user!.uid,
+        id: uid,
         email: email.trim(),
         phoneNumber: phoneNumber.trim(),
         firstName: firstName.trim(),
@@ -77,6 +102,15 @@ class AuthProvider extends ChangeNotifier {
         createdAt: now,
         isEmailVerified: false,
         isPhoneVerified: false,
+        carModel: carModel,
+        licensePlate: licensePlate,
+        carColor: carColor,
+        licenseNumber: licenseNumber,
+        carYear: carYear,
+        carCapacity: carCapacity,
+        carPhoto: carPhotoUrl,
+        licensePhoto: licensePhotoUrl,
+        idCardPhoto: idCardPhotoUrl,
       );
 
       // Save to Firestore
@@ -195,6 +229,10 @@ class AuthProvider extends ChangeNotifier {
 
   Future<String?> getEmailByPhone(String phone) async {
     return await _firebaseService.getEmailByPhone(phone);
+  }
+
+  Future<String> uploadFile(File file, String path) async {
+    return await _firebaseService.uploadFile(file, path);
   }
 
   Future<void> logout() async {
