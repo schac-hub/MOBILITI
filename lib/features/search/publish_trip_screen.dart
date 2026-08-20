@@ -388,7 +388,7 @@ class _DropField extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => DropdownButtonFormField<String>(
-    value: items.contains(controller.text) ? controller.text : null,
+    initialValue: items.contains(controller.text) ? controller.text : null,
     hint: Text(hint),
     items: items
         .map((s) => DropdownMenuItem(value: s, child: Text(s)))
